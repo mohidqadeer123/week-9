@@ -41,6 +41,8 @@ def GroupEstimate(object):
         # Store results
         self.group_estimates = result.reset_index().rename(columns={"y": self.estimate})
         self.group_features = list(X.columns)
+
+        return self
         
 
     def predict(self, X):
