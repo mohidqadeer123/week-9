@@ -15,14 +15,32 @@ def GroupEstimate(object):
 
         # Validate type of input
         if not isinstance(X, pd.Dataframe):
-        raise TypeError("X must be a dataframe")
+            raise TypeError("X must be a dataframe")
 
         if len(X) != len(y):
-            raise valueError("X and y must have same legnth")
+            raise ValueError("X and y must have same legnth")
 
         # Check missing values in y
         if pd.isnull(y).any() :
             raise ValueError("y has missing values")
+        
+        # Combine X and y as one dataframe
+        df = X.copy()
+        df["y"] = y
+
+        # Group by columns in X
+        grouped = df.groupby(list(X.columns))["y"]
+
+        # Calculate required estimate
+        if self.estimate == "mean":
+            result = grouped.mean()
+
+        else:
+            result = grouped.median()
+
+        # Store results
+        self.group_estimates = result.reset_index().rename(columns={"y": self.estimate})
+        self.group_features = list(X.columns)
         
 
     def predict(self, X):
