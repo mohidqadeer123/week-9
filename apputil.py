@@ -61,11 +61,6 @@ class GroupEstimate(object):
         # Merge new data with group_estimates
         merged = X_.merge(self.group_estimates, on=self.group_features, how="left")
 
-        # Count missing groups
-        missing_count = merged[self.estimate].isna().sum()
-
-        if missing_count > 0:
-            print(f"{missing_count} observation(s) have unseen group combinations; returning NaN for them.")
 
         return merged[self.estimate].to_numpy()
     
