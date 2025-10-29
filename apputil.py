@@ -1,7 +1,8 @@
 import pandas as pd
+import numpy as np
 
 
-def GroupEstimate(object):
+class GroupEstimate(object):
     def __init__(self, estimate):
 
         # Validate type of estimate
@@ -14,7 +15,7 @@ def GroupEstimate(object):
     def fit(self, X, y):
 
         # Validate type of input
-        if not isinstance(X, pd.Dataframe):
+        if not isinstance(X, pd.DataFrame):
             raise TypeError("X must be a dataframe")
 
         if len(X) != len(y):
@@ -45,5 +46,26 @@ def GroupEstimate(object):
         return self
         
 
-    def predict(self, X):
-        return None
+    def predict(self, X_):
+        # check if model is fitted
+        if self.group_estimates is None:
+            raise ValueError("Model not fitted yet, call fit()")
+
+        # Convert to dataframe, if needed
+        X_ = pd.DataFrame(X_ , columns = self.group_features)
+
+        # Check columns match
+        if list(X_.columns) != self.group_features:
+            raise ValueError("Input columns must match those used during fitting.")
+
+        # Merge new data with group_estimates
+        merged = X_.merge(self.group_estimates, on=self.group_features, how="left")
+
+        # Count missing groups
+        missing_count = merged[self.estimate].isna().sum()
+
+        if missing_count > 0:
+            print(f"{missing_count} observation(s) have unseen group combinations; returning NaN for them.")
+
+        return merged[self.estimate].to_numpy()
+    
